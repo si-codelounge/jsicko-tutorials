@@ -49,8 +49,8 @@ public class Set<T> extends AbstractCollection<T> implements Contract {
 
     @Pure
     protected boolean size_increases_iff_not_contained(T element) {
-        return implies(!old(this).contains_element(element), this.size() == old(this).size() + 1) &&
-                implies(old(this).contains_element(element), this.size() == old(this).size());
+        return implies(!old(this).contains(element), this.size() == old(this).size() + 1,
+                this.size() == old(this).size());
     }
 
     @Override

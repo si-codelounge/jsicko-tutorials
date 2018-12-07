@@ -24,6 +24,23 @@ import ch.usi.si.codelounge.jsicko.Contract;
 import static ch.usi.si.codelounge.jsicko.Contract.old;
 import static ch.usi.si.codelounge.jsicko.ContractUtils.*;
 
+/**
+ * A simplified interface for an abstract collection.
+ *
+ * It shows how to specify the add and remove methods with specific refinements
+ * for two subclasses, List and Set. Refinements happen specifically
+ * in the add and remove methods.
+ *
+ * It also shows two very simple class invariants.
+ *
+ * Since the collection is essentially uninitialized in the abstract class,
+ * the implementation for the pure contract observers is delegated
+ * to the subclasses. For this reason, the default constructor must be
+ * protected, so that it does not get instrumented. In fact, checking
+ * the invariants in the intermediate state produced by this constructor
+ * would likely generate a <code>NullPointerException</code>.
+ * @param <T> the type of the contained elements.
+ */
 public abstract class AbstractCollection<T> implements Contract {
 
     protected AbstractCollection() {}
@@ -56,19 +73,14 @@ public abstract class AbstractCollection<T> implements Contract {
     }
 
     @Pure
-    protected boolean contains_element(T element) {
-        return contains(element);
-    }
-
-    @Pure
     protected boolean returns_true_if_old_contains(boolean returns, T element) {
         return returns == old(this).contains(element);
     }
 
     @Pure
     protected boolean size_decreases_if_contained(T element) {
-        return implies(old(this).contains_element(element), this.size() == old(this).size() - 1) &&
-                implies(!old(this).contains_element(element), this.size() == old(this).size());
+        return implies(old(this).contains(element), this.size() == old(this).size() - 1,
+                this.size() == old(this).size());
     }
 
     @Pure
@@ -77,7 +89,7 @@ public abstract class AbstractCollection<T> implements Contract {
     }
 
     @Requires("element_not_null")
-    @Ensures({"contains_element", "size_may_increase"})
+    @Ensures({"contains", "size_may_increase"})
     public abstract void add(T element);
 
     @Requires("element_not_null")

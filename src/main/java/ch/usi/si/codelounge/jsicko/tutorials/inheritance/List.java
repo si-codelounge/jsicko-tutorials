@@ -22,6 +22,7 @@ package ch.usi.si.codelounge.jsicko.tutorials.inheritance;
 
 import ch.usi.si.codelounge.jsicko.Contract;
 import static ch.usi.si.codelounge.jsicko.Contract.old;
+import static ch.usi.si.codelounge.jsicko.ContractUtils.implies;
 
 public class List<T> extends AbstractCollection<T> implements Contract {
 
@@ -51,6 +52,13 @@ public class List<T> extends AbstractCollection<T> implements Contract {
         return this.size() == old(this).size() + 1;
     }
 
+    @Pure
+    protected boolean size_decreased_iff_contained(T element) {
+        return implies(old(this).contains(element), this.size() == old(this).size() - 1,
+                this.size() == old(this).size());
+    }
+
+
     @Override
     @Ensures("size_increases")
     public void add(T element) {
@@ -58,6 +66,7 @@ public class List<T> extends AbstractCollection<T> implements Contract {
     }
 
     @Override
+    @Ensures("size_decreased_iff_contained")
     public boolean remove(T element) {
         return this.baseCollection.remove(element);
     }

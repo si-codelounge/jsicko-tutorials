@@ -25,3 +25,12 @@ detailed note of how jSicko operates (including the rewriting of methods to
 add pre/post-condition and invariant checks), and eventually the correct
 execution of test cases.
 
+## Use with IntelliJ IDEA
+
+To run and play with this tutorial project with IntelliJ IDEA, clone this repository and import it. 
+Most of the maven settings will be imported, except the compiler option that enables the jSicko
+instrumentation. 
+
+To enable it, open the IntelliJ IDEA Preference window, and look for `Builder, Execution, Deployment / Compiler / Java Compiler` on the settings tree. In the bottom of the settings panel, you can add a project-specific option by adding `-Xplugin:JSickoContractCompiler` as a compilation option for the `jSicko-tutorials` module.
+
+

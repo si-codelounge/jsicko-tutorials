@@ -21,13 +21,12 @@
 package ch.usi.si.codelounge.jsicko.tutorials.inheritance;
 
 import ch.usi.si.codelounge.jsicko.Contract;
+import static ch.usi.si.codelounge.jsicko.Contract.old;
 import static ch.usi.si.codelounge.jsicko.ContractUtils.*;
-
-import java.util.Collection;
 
 public abstract class AbstractCollection<T> implements Contract {
 
-    private Collection<T> baseCollection;
+    protected AbstractCollection() {}
 
     @Invariant
     @Pure
@@ -47,13 +46,43 @@ public abstract class AbstractCollection<T> implements Contract {
     @Pure
     public abstract int size();
 
-    @Requires("arg_not_null")
+    @Requires("element_not_null")
     @Pure
-    public abstract boolean contains(Object o);
+    public abstract boolean contains(T element);
 
     @Pure
-    protected boolean arg_not_null(Object o) {
-        return o != null;
+    protected boolean element_not_null(T element) {
+        return element != null;
     }
+
+    @Pure
+    protected boolean contains_element(T element) {
+        return contains(element);
+    }
+
+    @Pure
+    protected boolean returns_true_if_old_contains(boolean returns, T element) {
+        return returns == old(this).contains(element);
+    }
+
+    @Pure
+    protected boolean size_decreases_if_contained(T element) {
+        return implies(old(this).contains_element(element), this.size() == old(this).size() - 1) &&
+                implies(!old(this).contains_element(element), this.size() == old(this).size());
+    }
+
+    @Pure
+    protected boolean size_may_increase(T element) {
+        return this.size() >= old(this).size();
+    }
+
+    @Requires("element_not_null")
+    @Ensures({"contains_element", "size_may_increase"})
+    public abstract void add(T element);
+
+    @Requires("element_not_null")
+    @Ensures({"size_decreases_if_contained", "returns_true_if_old_contains"})
+    public abstract boolean remove(T element);
+
 
 }

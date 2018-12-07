@@ -22,13 +22,14 @@ package ch.usi.si.codelounge.jsicko.tutorials.inheritance;
 
 import ch.usi.si.codelounge.jsicko.Contract;
 import static ch.usi.si.codelounge.jsicko.Contract.old;
+import static ch.usi.si.codelounge.jsicko.ContractUtils.implies;
 
-public class List<T> extends AbstractCollection<T> implements Contract {
+public class Set<T> extends AbstractCollection<T> implements Contract {
 
-    private final java.util.List<T> baseCollection;
+    private final java.util.Set<T> baseCollection;
 
-    public List() {
-        this.baseCollection = new java.util.ArrayList<T>();
+    public Set() {
+        this.baseCollection = new java.util.HashSet<T>();
     }
 
     @Override
@@ -47,12 +48,13 @@ public class List<T> extends AbstractCollection<T> implements Contract {
     }
 
     @Pure
-    protected boolean size_increases() {
-        return this.size() == old(this).size() + 1;
+    protected boolean size_increases_iff_not_contained(T element) {
+        return implies(!old(this).contains_element(element), this.size() == old(this).size() + 1) &&
+                implies(old(this).contains_element(element), this.size() == old(this).size());
     }
 
     @Override
-    @Ensures("size_increases")
+    @Ensures("size_increases_iff_not_contained")
     public void add(T element) {
         this.baseCollection.add(element);
     }

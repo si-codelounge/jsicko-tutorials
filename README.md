@@ -1,7 +1,7 @@
 # jSicko Tutorials
 
 This repository contains basic tutorials to use jSicko - Java Simple Contract 
-Checker.
+Checker, updated to version `1.0.0-M2`.
 
 ## Contents
 
@@ -10,7 +10,7 @@ This repository contains a few classes and tests that show how to use jSicko.
 * `ch.usi.si.codelounge.jsicko.tutorials.simple.Collections`, that contains a few Java methods boxing library methods to operate on collections;
 * `ch.usi.si.codelounge.jsicko.tutorials.simple.Math`, with a few methods manipulating doubles; 
 * `ch.usi.si.codelounge.jsicko.tutorials.stack`, containing the contract for a `Stack` interface and two implementing classes, `impl.GoodStack` and `impl.BadStack`.
-* `ch.usi.si.codelounge.jsicko.tutorials.inheritance`, containing the contract for an abstract collection and a list inheriting from it.
+* `ch.usi.si.codelounge.jsicko.tutorials.inheritance`, containing the contract for an abstract collection, and two classes (`List` and `Set`) inheriting from it.
 
 In `src/test`, you will find jUnit 5 tests that exercise a few behaviors of the classes above.
 In most cases, the test exercise both normal behavior and that violate preconditions.

@@ -21,18 +21,18 @@
 package ch.usi.si.codelounge.jsicko.tutorials.stack;
 
 import ch.usi.si.codelounge.jsicko.Contract;
-import static ch.usi.si.codelounge.jsicko.Contract.old;
-import static ch.usi.si.codelounge.jsicko.ContractUtils.*;
 
 import java.util.Collection;
-import java.util.stream.IntStream;
+
+import static ch.usi.si.codelounge.jsicko.Contract.old;
+import static ch.usi.si.codelounge.jsicko.ContractUtils.*;
 
 /**
  * A simple interface for a Stack of elements.
  * @param <T> the type for the stack elements.
  */
 public interface Stack<T> extends Contract {
-    
+
     @Invariant
     @Pure
     default boolean sizeNonNegative() {
@@ -66,12 +66,16 @@ public interface Stack<T> extends Contract {
 
     @Requires("pos_is_valid")
     @Pure
-    default T elementAt(int pos) {
-        return null;
-    }
+    T elementAt(int pos);
 
     @Ensures("stack_is_empty")
     void clear();
+
+    @Ensures("when_found")
+    int indexOf(T e);
+
+    @Ensures({"remove_postcondition_normal", "remove_postcondition_exceptional"})
+    T remove(int index);
 
     @Pure
     default boolean stack_is_empty() {
@@ -134,6 +138,21 @@ public interface Stack<T> extends Contract {
     @Pure
     default boolean collection_initializer(Collection<T> elems) {
         return forAll(elems,elem -> existsInt(0,size(),pos -> elementAt(pos).equals(elem)));
+    }
+
+    @Pure
+    default boolean when_found(T e, int returns) {
+    return implies(0 <= returns && returns < size(), () -> e.equals(elementAt(returns)));
+    }
+
+    @Pure
+    default boolean remove_postcondition_normal(T returns, int index) {
+        return implies(pos_is_valid(index), () -> returns.equals(old(this).elementAt(index)) && size_decreases());
+    }
+
+    @Pure
+    default boolean remove_postcondition_exceptional(Throwable raises, int index) {
+        return implies(!pos_is_valid(index), () -> raises instanceof IndexOutOfBoundsException && this.equals(old(this)));
     }
 
     /**

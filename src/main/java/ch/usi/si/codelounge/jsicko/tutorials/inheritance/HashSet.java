@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 Andrea Mocci and CodeLounge https://codelounge.si.usi.ch
+ * Copyright (C) 2019 Andrea Mocci and CodeLounge https://codelounge.si.usi.ch
  *
  * This file is part of jSicko - Java SImple Contract checKer.
  *
@@ -21,15 +21,21 @@
 package ch.usi.si.codelounge.jsicko.tutorials.inheritance;
 
 import ch.usi.si.codelounge.jsicko.Contract;
+
 import static ch.usi.si.codelounge.jsicko.Contract.old;
 import static ch.usi.si.codelounge.jsicko.ContractUtils.implies;
 
-public class Set<T> extends AbstractCollection<T> implements Contract {
+public class HashSet<T> extends AbstractCollection<T> implements Contract {
 
     private final java.util.Set<T> baseCollection;
 
-    public Set() {
-        this.baseCollection = new java.util.HashSet<T>();
+    public HashSet() {
+        this.baseCollection = new java.util.TreeSet<T>();
+    }
+
+    @Override
+    boolean supports_null_elements() {
+        return false;
     }
 
     @Override
@@ -49,8 +55,9 @@ public class Set<T> extends AbstractCollection<T> implements Contract {
 
     @Pure
     protected boolean size_increases_iff_not_contained(T element) {
-        return implies(!old(this).contains(element), this.size() == old(this).size() + 1,
-                this.size() == old(this).size());
+        return implies(!old(this).contains(element),
+                () -> this.size() == old(this).size() + 1,
+                () -> this.size() == old(this).size());
     }
 
     @Override
@@ -63,5 +70,11 @@ public class Set<T> extends AbstractCollection<T> implements Contract {
     public boolean remove(T element) {
         return this.baseCollection.remove(element);
     }
+
+    @Override
+    public HashSet<T> copyFrom(AbstractCollection<T> other) {
+        return new HashSet<T>();
+    }
+
 
 }

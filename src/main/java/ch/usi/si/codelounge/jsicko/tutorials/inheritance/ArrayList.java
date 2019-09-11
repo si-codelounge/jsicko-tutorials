@@ -21,15 +21,21 @@
 package ch.usi.si.codelounge.jsicko.tutorials.inheritance;
 
 import ch.usi.si.codelounge.jsicko.Contract;
-import static ch.usi.si.codelounge.jsicko.Contract.old;
-import static ch.usi.si.codelounge.jsicko.ContractUtils.implies;
 
-public class List<T> extends AbstractCollection<T> implements Contract {
+import static ch.usi.si.codelounge.jsicko.Contract.old;
+import static ch.usi.si.codelounge.jsicko.ContractUtils.*;
+
+public class ArrayList<T> extends AbstractList<T> implements Contract {
 
     private final java.util.List<T> baseCollection;
 
-    public List() {
+    public ArrayList() {
         this.baseCollection = new java.util.ArrayList<T>();
+    }
+
+    @Override
+    boolean supports_null_elements() {
+        return true;
     }
 
     @Override
@@ -48,27 +54,38 @@ public class List<T> extends AbstractCollection<T> implements Contract {
     }
 
     @Pure
-    protected boolean size_increases() {
-        return this.size() == old(this).size() + 1;
-    }
+    public T get(int index) { return this.baseCollection.get(index); }
 
     @Pure
-    protected boolean size_decreased_iff_contained(T element) {
-        return implies(old(this).contains(element), this.size() == old(this).size() - 1,
-                this.size() == old(this).size());
+    public boolean element_at_old_size_position(T element) {
+        return this.get(old(this).size()) == element;
     }
 
-
     @Override
-    @Ensures("size_increases")
+    @Ensures("element_at_old_size_position")
     public void add(T element) {
         this.baseCollection.add(element);
     }
 
     @Override
-    @Ensures("size_decreased_iff_contained")
     public boolean remove(T element) {
         return this.baseCollection.remove(element);
+    }
+
+    @Pure
+    boolean less_size_than_other(AbstractCollection<T> other) {
+        return this.size() < other.size();
+    }
+
+    @Override
+    @Requires({"other_non_null", "other_non_empty", "less_size_than_other", "!isEmpty"})
+    public ArrayList<T> copyFrom(AbstractCollection<T> other) {
+        return new ArrayList<T>();
+    }
+
+    @Pure
+    public String toString() {
+        return this.baseCollection.toString();
     }
 
 }

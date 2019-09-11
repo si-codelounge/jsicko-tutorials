@@ -21,14 +21,16 @@
 package ch.usi.si.codelounge.jsicko.tutorials.inheritance;
 
 import ch.usi.si.codelounge.jsicko.Contract;
+
 import static ch.usi.si.codelounge.jsicko.Contract.old;
-import static ch.usi.si.codelounge.jsicko.ContractUtils.*;
+import static ch.usi.si.codelounge.jsicko.ContractUtils.iff;
+import static ch.usi.si.codelounge.jsicko.ContractUtils.implies;
 
 /**
  * A simplified interface for an abstract collection.
  *
  * It shows how to specify the add and remove methods with specific refinements
- * for two subclasses, List and Set. Refinements happen specifically
+ * for two subclasses, ArrayList and HashSet. Refinements happen specifically
  * in the add and remove methods.
  *
  * It also shows two very simple class invariants.
@@ -44,6 +46,13 @@ import static ch.usi.si.codelounge.jsicko.ContractUtils.*;
 public abstract class AbstractCollection<T> implements Contract {
 
     protected AbstractCollection() {}
+
+    /*
+     * Essentially a model field - true iff the collection supports
+     * null elements
+     */
+    @Pure
+    abstract boolean supports_null_elements();
 
     @Invariant
     @Pure
@@ -63,7 +72,7 @@ public abstract class AbstractCollection<T> implements Contract {
     @Pure
     public abstract int size();
 
-    @Requires("element_not_null")
+    @Ensures("raises_exception_if_null_unsupported")
     @Pure
     public abstract boolean contains(T element);
 
@@ -73,14 +82,20 @@ public abstract class AbstractCollection<T> implements Contract {
     }
 
     @Pure
+    protected boolean raises_exception_if_null_unsupported(Throwable raises, T element) {
+        return implies(!supports_null_elements() && element == null, () -> raises instanceof NullPointerException);
+    }
+
+    @Pure
     protected boolean returns_true_if_old_contains(boolean returns, T element) {
         return returns == old(this).contains(element);
     }
 
     @Pure
     protected boolean size_decreases_if_contained(T element) {
-        return implies(old(this).contains(element), this.size() == old(this).size() - 1,
-                this.size() == old(this).size());
+        return implies(old(this).contains(element),
+                () -> this.size() == old(this).size() - 1,
+                () -> this.size() == old(this).size());
     }
 
     @Pure
@@ -88,13 +103,28 @@ public abstract class AbstractCollection<T> implements Contract {
         return this.size() >= old(this).size();
     }
 
-    @Requires("element_not_null")
-    @Ensures({"contains", "size_may_increase"})
+    @Ensures({"raises_exception_if_null_unsupported", "contains", "size_may_increase"})
     public abstract void add(T element);
 
-    @Requires("element_not_null")
-    @Ensures({"size_decreases_if_contained", "returns_true_if_old_contains"})
+    @Ensures({"raises_exception_if_null_unsupported", "size_decreases_if_contained", "returns_true_if_old_contains"})
     public abstract boolean remove(T element);
 
+    @Pure
+    boolean other_non_null(AbstractCollection<T> other) {
+        return other != null;
+    }
+
+    @Pure
+    boolean other_equal_size(AbstractCollection<T> other) {
+        return this.size() == other.size();
+    }
+
+    @Pure
+    boolean other_non_empty(AbstractCollection<T> other) {
+        return other.size() > 0;
+    }
+
+    @Requires({"other_non_null", "other_non_empty", "other_equal_size"})
+    public abstract AbstractCollection<T> copyFrom(AbstractCollection<T> other);
 
 }

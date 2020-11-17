@@ -6,6 +6,7 @@ variables:
 stages:
   - build
   - test
+  - jdktests
   - mirroring
 
 cache:
@@ -21,6 +22,32 @@ test:
   stage: test
   script:
   - mvn test
+
+buildon12:
+  image: maven:3-jdk-12
+  stage: jdktests
+  script:
+    - mvn -e -X compile test -Djdk.version=12
+
+buildon13:
+  image: maven:3-jdk-13
+  stage: jdktests
+  script:
+    - mvn -e -X compile test -Djdk.version=13
+
+buildon14:
+  image: maven:3-jdk-14
+  stage: jdktests
+  script:
+    - mvn -e -X compile test -Djdk.version=14
+
+buildon15:
+  image: maven:3-adoptopenjdk-15
+  stage: jdktests
+  script:
+    - mvn -e -X compile test -Djdk.version=15
+
+
 
 github_mirroring:
   stage: mirroring

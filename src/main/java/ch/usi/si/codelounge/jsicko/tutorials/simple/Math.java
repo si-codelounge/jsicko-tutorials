@@ -61,12 +61,12 @@ public abstract class Math implements Contract {
     }
 
     @Pure
-    private static boolean returns_contained(double returns, int[] a) {
+    private static boolean returns_contained(int returns, int[] a) {
         return existsInt(0, a.length, idx -> a[idx] == returns);
     }
 
     @Pure
-    private static boolean returns_max(double returns, int[] a) {
+    private static boolean returns_max(int returns, int[] a) {
         return forAllInts(0, a.length, idx -> a[idx] <= returns);
     }
 
